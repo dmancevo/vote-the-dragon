@@ -219,7 +219,9 @@ Potential features to add:
 
 ## 📝 License
 
-This project is built as a game template for deployment on Digital Ocean App Platform.
+This project is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0). See [LICENSE.md](LICENSE.md) for details.
+
+The AGPL-3.0 is a strong copyleft license that requires anyone who runs a modified version of this software as a network service to make the source code available to users of that service.
 
 ## 🤝 Contributing
 
