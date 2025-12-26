@@ -164,8 +164,7 @@
             </div>
 
             <!-- Dragon Guess Area -->
-            {% if player.role == 'dragon' and game.state.value == 'dragon_guess' %}
-            <div id="guess-area" class="card bg-base-100 shadow-xl mt-6">
+            <div id="guess-area" class="card bg-base-100 shadow-xl mt-6" style="{% if player.role != 'dragon' or game.state.value != 'dragon_guess' %}display: none;{% endif %}">
                 <div class="card-body">
                     <h2 class="card-title text-error">Final Chance!</h2>
                     <p class="text-sm mb-4">You've been eliminated. Guess the secret word to win!</p>
@@ -187,7 +186,16 @@
                     </form>
                 </div>
             </div>
-            {% endif %}
+
+            <!-- Waiting for Dragon Guess (Non-Dragon Players) -->
+            <div id="dragon-guessing-message" class="card bg-base-100 shadow-xl mt-6" style="{% if player.role == 'dragon' or game.state.value != 'dragon_guess' %}display: none;{% endif %}">
+                <div class="card-body text-center">
+                    <div class="text-6xl mb-4">🐉</div>
+                    <h2 class="card-title justify-center">Dragon is Guessing!</h2>
+                    <p class="text-base-content/70">The Dragon has been eliminated but gets one chance to guess the secret word...</p>
+                    <div class="loading loading-dots loading-lg mt-4"></div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -209,7 +217,8 @@ function updateStatusBar(state) {
     const messages = {
         'playing': 'Discussion Phase - Discuss to find the Dragon!',
         'voting': 'Voting Phase - Vote for who you think is the Dragon',
-        'dragon_guess': 'Dragon is guessing the word...'
+        'dragon_guess': 'Dragon\'s Last Chance - Guessing the word...',
+        'finished': 'Game Over!'
     };
 
     statusText.textContent = messages[state] || 'Game in progress';

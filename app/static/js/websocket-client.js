@@ -180,6 +180,31 @@ class GameWebSocket {
         const voteButtons = document.getElementById('vote-buttons');
         const voteStatus = document.getElementById('vote-status');
 
+        // Handle dragon guess state
+        const guessArea = document.getElementById('guess-area');
+        const dragonGuessingMessage = document.getElementById('dragon-guessing-message');
+
+        if (state.state === 'dragon_guess') {
+            // Hide voting and spectator areas
+            if (votingArea) votingArea.style.display = 'none';
+
+            if (state.your_role === 'dragon') {
+                // Dragon sees the guess form
+                if (guessArea) guessArea.style.display = 'block';
+                if (spectatorMessage) spectatorMessage.style.display = 'none';
+                if (dragonGuessingMessage) dragonGuessingMessage.style.display = 'none';
+            } else {
+                // Other players see waiting message
+                if (guessArea) guessArea.style.display = 'none';
+                if (dragonGuessingMessage) dragonGuessingMessage.style.display = 'block';
+                if (spectatorMessage) spectatorMessage.style.display = 'none';
+            }
+        } else {
+            // Not in dragon guess state - hide dragon guess elements
+            if (guessArea) guessArea.style.display = 'none';
+            if (dragonGuessingMessage) dragonGuessingMessage.style.display = 'none';
+        }
+
         // Update voting UI based on player alive status and game state
         if (state.state === 'voting') {
             if (state.is_alive) {
