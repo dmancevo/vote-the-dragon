@@ -110,32 +110,52 @@
 
         <!-- Right Column: Players & Voting -->
         <div>
-            <!-- Players Grid -->
+            <!-- Players List (Turn Order) -->
             <div class="card bg-base-100 shadow-xl">
                 <div class="card-body">
                     <h2 class="card-title">
-                        Players
+                        Turn Order
                         <div class="badge badge-primary" id="alive-count">
                             {{ game.players.values()|selectattr('is_alive')|list|length }} alive
                         </div>
                     </h2>
+                    <p class="text-sm text-base-content/70 mb-2">Players say their word in this order</p>
 
-                    <div id="players-grid" class="grid grid-cols-2 gap-3 mt-4">
-                        {% for p in game.players.values() %}
-                        <div class="flex items-center gap-2 p-3 rounded-lg {% if p.is_alive %}bg-base-200{% else %}bg-base-300 opacity-50{% endif %}">
-                            <div class="avatar placeholder">
-                                <div class="bg-primary text-primary-content rounded-full w-10">
-                                    <span>{{ p.nickname[0]|upper }}</span>
+                    <div id="players-grid" class="space-y-2 mt-4">
+                        {% if game.player_order %}
+                            {% for player_id in game.player_order %}
+                                {% set p = game.players[player_id] %}
+                                <div class="flex items-center gap-3 p-3 rounded-lg {% if p.is_alive %}bg-base-200{% else %}bg-base-300 opacity-50{% endif %}">
+                                    <div class="avatar placeholder">
+                                        <div class="bg-primary text-primary-content rounded-full w-10">
+                                            <span>{{ p.nickname[0]|upper }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="font-semibold truncate">{{ p.nickname }}</div>
+                                        {% if not p.is_alive %}
+                                        <div class="text-xs text-error">Eliminated</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            {% for p in game.players.values() %}
+                            <div class="flex items-center gap-3 p-3 rounded-lg {% if p.is_alive %}bg-base-200{% else %}bg-base-300 opacity-50{% endif %}">
+                                <div class="avatar placeholder">
+                                    <div class="bg-primary text-primary-content rounded-full w-10">
+                                        <span>{{ p.nickname[0]|upper }}</span>
+                                    </div>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="font-semibold truncate">{{ p.nickname }}</div>
+                                    {% if not p.is_alive %}
+                                    <div class="text-xs text-error">Eliminated</div>
+                                    {% endif %}
                                 </div>
                             </div>
-                            <div class="flex-1 min-w-0">
-                                <div class="font-semibold truncate">{{ p.nickname }}</div>
-                                {% if not p.is_alive %}
-                                <div class="text-xs text-error">Eliminated</div>
-                                {% endif %}
-                            </div>
-                        </div>
-                        {% endfor %}
+                            {% endfor %}
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -245,12 +265,23 @@ function updateStatusBar(state) {
     statusText.textContent = messages[state] || 'Game in progress';
 }
 
-function updatePlayersGrid(players) {
+function updatePlayersGrid(players, playerOrder) {
     const grid = document.getElementById('players-grid');
     if (!grid) return;
 
-    grid.innerHTML = players.map(p => `
-        <div class="flex items-center gap-2 p-3 rounded-lg ${p.is_alive ? 'bg-base-200' : 'bg-base-300 opacity-50'}">
+    // Create a map of player ID to player object for quick lookup
+    const playerMap = {};
+    players.forEach(p => {
+        playerMap[p.id] = p;
+    });
+
+    // If we have a player order, use it; otherwise use the players array as-is
+    const orderedPlayers = playerOrder && playerOrder.length > 0
+        ? playerOrder.map(id => playerMap[id]).filter(p => p !== undefined)
+        : players;
+
+    grid.innerHTML = orderedPlayers.map(p => `
+        <div class="flex items-center gap-3 p-3 rounded-lg ${p.is_alive ? 'bg-base-200' : 'bg-base-300 opacity-50'}">
             <div class="avatar placeholder">
                 <div class="bg-primary text-primary-content rounded-full w-10">
                     <span>${p.nickname[0].toUpperCase()}</span>

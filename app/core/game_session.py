@@ -44,6 +44,7 @@ class GameSession:
         self.dragon_guess: Optional[str] = None
         self.eliminated_player_id: Optional[str] = None
         self.last_elimination: Optional[dict] = None  # Stores last elimination details
+        self.player_order: list[str] = []  # Shuffled order of player IDs for turn order
 
     def add_player(self, nickname: str) -> Player:
         """Add a new player to the game.
@@ -110,6 +111,11 @@ class GameSession:
         word_pair = random.choice(WORD_PAIRS)
         self.villager_word = word_pair[0]  # Main word for villagers
         self.knight_word = word_pair[1]    # Similar word for knights
+
+        # Shuffle and store player order for turn-based word saying
+        player_ids = list(self.players.keys())
+        random.shuffle(player_ids)
+        self.player_order = player_ids
 
         # Update state
         self.state = GameState.PLAYING
@@ -233,6 +239,7 @@ class GameSession:
             "votes_submitted": len(self.votes),
             "has_voted": player_id in self.votes,
             "last_elimination": self.last_elimination,
+            "player_order": self.player_order,  # Turn order for word-saying phase
         }
 
         if self.state == GameState.FINISHED:

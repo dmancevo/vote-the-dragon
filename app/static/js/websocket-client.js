@@ -140,7 +140,7 @@ class GameWebSocket {
 
         // Update players grid if function exists
         if (typeof updatePlayersGrid === 'function' && state.players) {
-            updatePlayersGrid(state.players);
+            updatePlayersGrid(state.players, state.player_order);
         }
 
         // Update status bar if function exists
