@@ -16,7 +16,7 @@ from routes import game, gameplay, lobby, websocket
 async def lifespan(app: FastAPI):
     """Application lifespan events."""
     # Startup
-    print("🎮 Dragonseeker game server starting...")
+    print("🐉 Dragonseeker game server starting...")
     print("🔗 Game manager initialized")
     yield
     # Shutdown

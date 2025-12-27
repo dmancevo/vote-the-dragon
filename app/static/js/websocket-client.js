@@ -14,7 +14,7 @@ class GameWebSocket {
         this.isConnecting = false;
         this.previousState = null; // Track previous state to detect transitions
 
-        console.log(`🎮 Initializing WebSocket for game ${gameId}, player ${playerId}`);
+        console.log(`🐉 Initializing WebSocket for game ${gameId}, player ${playerId}`);
         this.connect();
     }
 
@@ -123,7 +123,7 @@ class GameWebSocket {
     }
 
     handleStateUpdate(state) {
-        console.log('🎮 Handling state update:', state);
+        console.log('🐉 Handling state update:', state);
 
         // Update player count if element exists
         const playerCountEl = document.getElementById('player-count');
