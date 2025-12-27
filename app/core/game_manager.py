@@ -3,8 +3,8 @@
 import secrets
 from datetime import datetime, timedelta
 
-from .constants import GAME_TTL_SECONDS
-from .game_session import GameSession
+from .constants import FINISHED_GAME_TTL_SECONDS, GAME_TTL_SECONDS
+from .game_session import GameSession, GameState
 
 
 class GameManager:
@@ -52,17 +52,27 @@ class GameManager:
             del self.games[game_id]
 
     def cleanup_stale_games(self) -> int:
-        """Remove games that are too old.
+        """Remove games that are too old or finished.
 
         Returns:
             Number of games cleaned up
         """
         now = datetime.now()
         cutoff_time = now - timedelta(seconds=GAME_TTL_SECONDS)
+        finished_cutoff = now - timedelta(seconds=FINISHED_GAME_TTL_SECONDS)
 
-        stale_game_ids = [
-            game_id for game_id, game in self.games.items() if game.created_at < cutoff_time
-        ]
+        stale_game_ids = []
+        for game_id, game in self.games.items():
+            # Remove old unfinished games (after 1 hour)
+            if game.created_at < cutoff_time:
+                stale_game_ids.append(game_id)
+            # Remove finished games (after 30 minutes)
+            elif (
+                game.state == GameState.FINISHED
+                and game.finished_at
+                and game.finished_at < finished_cutoff
+            ):
+                stale_game_ids.append(game_id)
 
         for game_id in stale_game_ids:
             self.remove_game(game_id)

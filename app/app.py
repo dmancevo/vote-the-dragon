@@ -9,7 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from core.game_manager import game_manager
-from middleware import RateLimitMiddleware
+from middleware import RateLimitMiddleware, SecurityHeadersMiddleware
 from routes import game, gameplay, lobby, websocket
 
 
@@ -37,15 +37,23 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Configure CORS for development
+# Configure CORS
 # Note: type ignore needed due to Starlette's middleware type stub limitations
 app.add_middleware(
     CORSMiddleware,  # type: ignore[arg-type]
-    allow_origins=["*"],
+    allow_origins=[
+        "https://dragonseeker.win",
+        "http://localhost:8000",  # Development
+        "http://127.0.0.1:8000",  # Development
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Add security headers middleware
+# Note: type ignore needed due to Starlette's middleware type stub limitations
+app.add_middleware(SecurityHeadersMiddleware)  # type: ignore[arg-type]
 
 # Add rate limiting middleware
 # Note: type ignore needed due to Starlette's middleware type stub limitations
@@ -73,6 +81,11 @@ async def index(request: Request):
 @app.get("/health")
 async def health_check():
     """Health check endpoint for monitoring."""
+    # Cleanup stale/finished games
+    cleaned = game_manager.cleanup_stale_games()
+    if cleaned > 0:
+        print(f"🧹 Cleaned up {cleaned} stale/finished games")
+
     stats = game_manager.get_stats()
     return {
         "status": "healthy",

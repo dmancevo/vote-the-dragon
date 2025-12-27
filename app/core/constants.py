@@ -5,7 +5,8 @@ MIN_PLAYERS = 3
 MAX_PLAYERS = 12
 
 # Game state cleanup
-GAME_TTL_SECONDS = 3600  # Games are cleaned up after 1 hour
+GAME_TTL_SECONDS = 3600  # Unfinished games are cleaned up after 1 hour
+FINISHED_GAME_TTL_SECONDS = 1800  # Finished games are cleaned up after 30 minutes
 
 # WebSocket settings
 WEBSOCKET_PING_INTERVAL = 30  # Ping every 30 seconds

@@ -84,21 +84,26 @@ def get_rate_limit(path: str) -> int | None:
         return None
 
     # Timer endpoint needs high limit (1 req/sec per player)
-    # With max 12 players from same IP: 20 req/s is safe
+    # With max 12 players from same IP: need at least 12 req/s + overhead
     if "/timer" in path:
-        return 20
+        return 30  # 12 players * 1 req/s + buffer
 
     # Health check gets moderate limit
     if path == "/health":
         return 10
 
-    # API endpoints get stricter limit
-    if path.startswith("/api"):
-        return 5
+    # Game creation gets very strict limit (prevent spam)
+    if "/games/create" in path:
+        return 2  # Only 2 games per second per IP
 
-    # Page views get moderate limit
+    # API endpoints need high limit for 12 players
+    # (voting, joining, etc. - all players might act simultaneously)
+    if path.startswith("/api"):
+        return 20  # 12 players + overhead
+
+    # Page views need high limit (all players load pages after game state changes)
     if path.startswith("/game/"):
-        return 10
+        return 25  # 12 players + overhead
 
     # Default limit for other endpoints
     return 5

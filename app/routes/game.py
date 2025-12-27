@@ -101,10 +101,15 @@ async def join_game(game_id: str, response: Response, nickname: str = Form(...))
 
     # Set authentication cookie (HTTP-only for security)
     # Use player_id in cookie name to avoid collision when testing multiple players in same browser
+    # Note: secure=True by default (production), set ENVIRONMENT=development to allow HTTP
+    import os
+
+    is_development = os.getenv("ENVIRONMENT") == "development"
     response.set_cookie(
         key=f"player_token_{player.id}",
         value=token,
         httponly=True,
+        secure=not is_development,  # HTTPS by default, HTTP only in development
         samesite="lax",
         max_age=86400,  # 24 hours
     )

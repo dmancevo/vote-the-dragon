@@ -40,10 +40,10 @@ class TestRateLimiter:
         """Test that timer endpoint allows more requests than standard API endpoints."""
         client = TestClient(app)
 
-        # Timer endpoint has 20 req/s limit (vs 5 for regular API)
+        # Timer endpoint has 30 req/s limit (vs 20 for regular API)
         # Make enough requests to exceed standard API limit
         success_count = 0
-        for _ in range(12):
+        for _ in range(25):
             # Use a mock game_id and player_id for testing
             response = client.get("/api/games/test-game/timer?player_id=test-player")
             if response.status_code != 429:
@@ -51,8 +51,8 @@ class TestRateLimiter:
             # Tiny sleep to avoid timestamp collision in tests
             time.sleep(0.001)
 
-        # Should allow more than the 5 req/s API limit, confirming higher timer limit
-        assert success_count > 5, f"Only {success_count} requests succeeded, expected more than 5"
+        # Should allow more than the 20 req/s API limit, confirming higher timer limit
+        assert success_count > 20, f"Only {success_count} requests succeeded, expected more than 20"
 
     def test_static_files_exempt_from_rate_limiting(self):
         """Test that static files are not rate limited."""

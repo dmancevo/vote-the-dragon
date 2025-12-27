@@ -1,5 +1,7 @@
 """Game state transition helpers."""
 
+from datetime import datetime
+
 from core.game_session import GameSession, GameState
 
 
@@ -69,3 +71,4 @@ def transition_to_finished(game: GameSession, winner: str) -> None:
     """
     game.state = GameState.FINISHED
     game.winner = winner
+    game.finished_at = datetime.now()

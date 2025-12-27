@@ -84,9 +84,13 @@ class TestAuthenticationIntegration:
 
     def test_authenticated_endpoint_requires_valid_token(self):
         """Test that authenticated endpoints require a valid token."""
+        import os
         import secrets
 
         from app import app
+
+        # Set development environment for testing (allows HTTP cookies)
+        os.environ["ENVIRONMENT"] = "development"
 
         # Initialize secret key for testing (TestClient doesn't run lifespan)
         app.state.secret_key = secrets.token_hex(32)

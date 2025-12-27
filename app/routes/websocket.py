@@ -1,5 +1,6 @@
 """WebSocket routes for real-time game updates."""
 
+import asyncio
 import json
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
@@ -76,13 +77,28 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
         # Keep connection alive and handle messages
         while True:
             try:
-                # Receive messages (mainly for keep-alive pings)
-                data = await websocket.receive_text()
+                # Receive messages with timeout (close idle connections after 5 minutes)
+                data = await asyncio.wait_for(
+                    websocket.receive_text(),
+                    timeout=300.0,  # 5 minutes
+                )
+
+                # Validate message size (prevent DoS)
+                if len(data) > 1024:  # 1KB max
+                    print(f"⚠️ Message too large from {player_id}: {len(data)} bytes")
+                    await websocket.close(code=1009, reason="Message too large")
+                    break
+
                 print(f"📥 Received from {player_id}: {data}")
 
                 # Handle ping/pong
                 if data == "ping":
                     await websocket.send_text("pong")
+
+            except TimeoutError:
+                print(f"⏱️ WebSocket timeout for {player_id} (no activity for 5 minutes)")
+                await websocket.close(code=1000, reason="Connection timeout")
+                break
 
             except WebSocketDisconnect:
                 print(f"🔌 WebSocket disconnected: {player_id}")

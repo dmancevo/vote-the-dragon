@@ -38,6 +38,7 @@ class GameSession:
         self.knight_word: str | None = None  # Similar word for knights
         self.created_at: datetime = datetime.now()
         self.started_at: datetime | None = None
+        self.finished_at: datetime | None = None  # When game finished
         self.votes: dict[str, str] = {}  # voter_id -> target_id
         self.connections: dict[str, WebSocket] = {}  # player_id -> WebSocket
         self.winner: str | None = None  # "villagers" or "dragon"
